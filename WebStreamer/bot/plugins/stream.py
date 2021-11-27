@@ -21,7 +21,8 @@ def detect_type(m: Message):
 
 @StreamBot.on_message(filters.document | filters.video | filters.audio, group=4)
 async def media_receive_handler(_, m: Message):
-    print(m)
+    try:
+          print(m)
     file = detect_type(m)
     file_name = ''
     if file:
@@ -36,3 +37,7 @@ async def media_receive_handler(_, m: Message):
         quote=True,
         reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('Open', url=stream_link)]])
     )
+    except:
+        await m.reply_text({
+            text:"Only Image, video, files are supported 📂! These type of messages not supported right now 😥"
+        })
