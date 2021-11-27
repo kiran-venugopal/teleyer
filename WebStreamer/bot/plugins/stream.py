@@ -38,6 +38,6 @@ async def media_receive_handler(_, m: Message):
             reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('Open', url=stream_link)]])
         )
     except:
-        await m.reply_text({
-            text:"Only Image, video, files are supported 📂! These type of messages not supported right now 😥"
-        })
+        await m.reply_text(
+            text= "Only Image, video, files are supported 📂! These type of messages not supported right now 😥"
+        )
