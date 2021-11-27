@@ -22,21 +22,21 @@ def detect_type(m: Message):
 @StreamBot.on_message(filters.document | filters.video | filters.audio, group=4)
 async def media_receive_handler(_, m: Message):
     try:
-          print(m)
-    file = detect_type(m)
-    file_name = ''
-    if file:
-        file_name = file.file_name
-    log_msg = await m.forward(chat_id=Var.BIN_CHANNEL)
-    url=Var.URL
-    if Var.CLIENT_URL:
-        url=Var.CLIENT_URL
-    stream_link = url + str(log_msg.message_id) + '/' +quote_plus(file_name) if file_name else ''
-    await m.reply_text(
-        text="`{}`".format(stream_link),
-        quote=True,
-        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('Open', url=stream_link)]])
-    )
+        print(m)
+        file = detect_type(m)
+        file_name = ''
+        if file:
+            file_name = file.file_name
+        log_msg = await m.forward(chat_id=Var.BIN_CHANNEL)
+        url=Var.URL
+        if Var.CLIENT_URL:
+            url=Var.CLIENT_URL
+        stream_link = url + str(log_msg.message_id) + '/' +quote_plus(file_name) if file_name else ''
+        await m.reply_text(
+            text="`{}`".format(stream_link),
+            quote=True,
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('Open', url=stream_link)]])
+        )
     except:
         await m.reply_text({
             text:"Only Image, video, files are supported 📂! These type of messages not supported right now 😥"
