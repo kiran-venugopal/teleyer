@@ -73,6 +73,7 @@ async def media_streamer(request, message_id: int):
             "Content-Range": f"bytes {from_bytes}-{until_bytes}/{file_size}",
             "Content-Disposition": f'attachment; filename="{file_name}"',
             "Accept-Ranges": "bytes",
+            'Access-Control-Allow-Origin', '*'
         }
     )
 
