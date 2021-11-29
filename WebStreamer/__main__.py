@@ -18,7 +18,7 @@ from WebStreamer.bot import StreamBot
 from WebStreamer.server import web_server
 from WebStreamer.utils.keepalive import ping_server
 from apscheduler.schedulers.background import BackgroundScheduler
-
+import requests
 
 logging.basicConfig(
     level=logging.INFO,
@@ -35,6 +35,9 @@ _path = "WebStreamer/bot/plugins/*.py"
 files = glob.glob(_path)
 
 async def start_services():
+    tel_api = "https://api.telegram.org/bot"+ Var.BOT_TOKEN; 
+    requests.get(tel_api + "/setWebhook?url=" + Var.HOST_URL + "/webhook/" + Var.BOT_TOKEN)
+
     print('----------------------------- DONE -----------------------------')
     print('\n')
     print('--------------------------- Importing ---------------------------')

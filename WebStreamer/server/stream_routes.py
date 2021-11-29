@@ -12,8 +12,30 @@ from WebStreamer.bot import StreamBot
 from WebStreamer import StartTime, __version__, bot_info
 from WebStreamer.utils.time_format import get_readable_time
 from WebStreamer.utils.custom_dl import TGCustomYield, chunk_size, offset_fix
+import requests
 
 routes = web.RouteTableDef()
+
+@routes.post("/webhook/"+Var.BOT_TOKEN)
+async def handle_webhook(request):
+    try:
+        req = await request.json()
+        statusRes = requests.get(Var.HOST_URL)
+        data = statusRes.json()
+        uptime = data['uptime']
+        if (len(uptime) <= 3 and uptime[len(uptime) -1] == "s"):
+            tel_api = "https://api.telegram.org/bot"+ Var.BOT_TOKEN; 
+            chat_id = req['message']['chat']['id']
+            message = "Sorry I was sleeping \xF0\x9F\x98\xB4! can you send the file again \xF0\x9F\x98\x8A"
+            requests.get(tel_api+"/sendMessage?chat_id="+ str(chat_id) +"&text="+message)
+            print("----bot was sleeping! send a request to wake up----")
+        else:
+            print("-----bot is alive-----")
+        return web.json_response({"success":True})
+    except Exception as e:
+        print("error in handling webhook!", e)
+        return web.json_response({"success":False})
+
 
 @routes.get("/", allow_head=True)
 async def root_route_handler(request):
@@ -34,6 +56,7 @@ async def stream_handler(request):
         raise web.HTTPNotFound
     except AttributeError:
         pass
+
 
 
 async def media_streamer(request, message_id: int):

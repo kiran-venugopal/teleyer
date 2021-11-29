@@ -21,6 +21,7 @@ class Var(object):
     NO_PORT = getenv('NO_PORT', False)
     NO_PORT = True if str(NO_PORT).lower() == 'true' else False
     CLIENT_URL= getenv('CLIENT_URL')
+    HOST_URL= getenv('HOST_URL')
     if 'DYNO' in environ:
         ON_HEROKU = True
         APP_NAME = str(getenv('APP_NAME'))
