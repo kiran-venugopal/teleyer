@@ -20,8 +20,10 @@ routes = web.RouteTableDef()
 async def handle_webhook(request):
     try:
         req = await request.json()
-        print("-------request-data-------", req)
         statusRes = requests.get(Var.HOST_URL)
+        if statusRes.status_code != 200:
+            print("-------no response from host-------")
+            return
         data = statusRes.json()
         uptime = data['uptime']
         if (len(uptime) <= 3 and uptime[len(uptime) -1] == "s"):
@@ -30,12 +32,13 @@ async def handle_webhook(request):
             message = "Sorry I was sleeping \xF0\x9F\x98\xB4! can you send the file again \xF0\x9F\x98\x8A"
             requests.get(tel_api+"/sendMessage?chat_id="+ str(chat_id) +"&text="+message)
             print("----bot was sleeping! send a request to wake up----")
+            return
         else:
             print("-----bot is alive-----")
-        return web.json_response({"success":True})
+        return 
     except Exception as e:
         print("error in handling webhook!", e)
-        return web.json_response({"success":False})
+        return 
 
 
 @routes.get("/", allow_head=True)
