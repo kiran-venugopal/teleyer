@@ -20,6 +20,7 @@ routes = web.RouteTableDef()
 async def handle_webhook(request):
     try:
         req = await request.json()
+        print("-------request-data-------", req)
         statusRes = requests.get(Var.HOST_URL)
         data = statusRes.json()
         uptime = data['uptime']
