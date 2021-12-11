@@ -31,11 +31,13 @@ async def media_receive_handler(_, m: Message):
         url=Var.URL
         if Var.CLIENT_URL:
             url=Var.CLIENT_URL
-        stream_link = url + str(log_msg.message_id) + '/' +quote_plus(file_name) if file_name else ''
+        file_path = str(log_msg.message_id) + '/' +quote_plus(file_name) if file_name else ''
+        stream_link = url + file_path
+        uploader_link = Var.GDRIVE_APP_URL + "?url=" + Var.HOST_URL + '/' + file_path
         await m.reply_text(
-            text="`{}`".format(stream_link),
+            text=file_name if file_name else '',
             quote=True,
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('Open', url=stream_link)]])
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('Upload to Google Drive', url=uploader_link), InlineKeyboardButton('Play File', url=stream_link)]])
         )
     except:
         await m.reply_text(
