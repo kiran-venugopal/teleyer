@@ -7,6 +7,7 @@ from urllib.parse import quote_plus
 from WebStreamer.bot import StreamBot
 from pyrogram.types.messages_and_media import message
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from WebStreamer.db.config import get_database
 
 def detect_type(m: Message):
     if m.document:
@@ -22,12 +23,23 @@ def detect_type(m: Message):
 @StreamBot.on_message(filters.document | filters.video | filters.audio, group=4)
 async def media_receive_handler(_, m: Message):
     try:
-        print(m)
+       
         file = detect_type(m)
         file_name = ''
         if file:
             file_name = file.file_name
         log_msg = await m.forward(chat_id=Var.BIN_CHANNEL)
+
+        try:
+            db = get_database()
+            collection = db["messageids"]
+            items = collection.find()
+            [doc] = items
+            mids_string = doc["mids"]
+            mids_string = mids_string + "," +  str(log_msg.message_id)
+            collection.update_one({'_id':doc['_id']}, {"$set":{"mids": mids_string}})
+        except Exception as e: print(e)
+
         url=Var.URL
         if Var.CLIENT_URL:
             url=Var.CLIENT_URL

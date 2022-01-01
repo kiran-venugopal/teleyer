@@ -7,18 +7,51 @@ import logging
 import secrets
 import mimetypes
 from aiohttp import web
+from pymongo import collection
 from WebStreamer.vars import Var
 from WebStreamer.bot import StreamBot
 from WebStreamer import StartTime, __version__, bot_info
 from WebStreamer.utils.time_format import get_readable_time
 from WebStreamer.utils.custom_dl import TGCustomYield, chunk_size, offset_fix
+from WebStreamer.db.config import get_database
 import requests
 
 routes = web.RouteTableDef()
 
-@routes.post("/webhook/"+Var.BOT_TOKEN)
-async def handle_webhook(request):
-    return web.json_response({"success":True})
+# @routes.post("/webhook/"+Var.BOT_TOKEN)
+# async def handle_webhook(request):
+#     return web.json_response({"success":True})
+
+@routes.post("/files")
+async def files(request):
+    db = get_database()
+    collection = db["messageids"]
+    items = collection.find()
+    [doc] = items
+    mids_string = doc["mids"]
+    message_ids = []
+    for id in mids_string.split(","):
+        message_ids.append(int(id))
+    
+    messages = await StreamBot.get_messages(Var.BIN_CHANNEL, message_ids)
+    # print(messages)
+    response = []
+    for message in messages:
+        mesg_obj = {}
+        doc = message["document"]
+        
+        mesg_obj["message_id"] = message["message_id"]
+        mesg_obj["file_name"] = doc["file_name"]
+        mesg_obj["date"] = doc["date"]
+        mesg_obj["file_size"] = doc["file_size"]
+        mesg_obj["thumb_id"] = doc["thumbs"][0]["file_id"]
+
+        response.append(mesg_obj)
+
+
+    
+  
+    return web.json_response(response)
 
 
 @routes.get("/", allow_head=True)
