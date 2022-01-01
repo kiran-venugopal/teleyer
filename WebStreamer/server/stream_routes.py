@@ -51,7 +51,7 @@ async def files(request):
 
     
   
-    return web.json_response(response)
+    return web.json_response(response, headers={ "Access-Control-Allow-Origin": "*"})
 
 
 @routes.get("/", allow_head=True)
