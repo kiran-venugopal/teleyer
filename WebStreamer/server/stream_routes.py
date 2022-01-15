@@ -42,7 +42,7 @@ async def files(request):
         
         mesg_obj["message_id"] = message["message_id"]
         mesg_obj["file_name"] = doc["file_name"]
-        mesg_obj["date"] = doc["date"]
+        mesg_obj["date"] = message["date"]
         mesg_obj["file_size"] = doc["file_size"]
         if doc["thumbs"]:
             mesg_obj["thumb_id"] = doc["thumbs"][0]["file_id"]
