@@ -37,19 +37,26 @@ async def files(request):
     # print(messages)
     response = []
     for message in messages:
-        mesg_obj = {}
+        if not message:
+            continue
+
         doc = message["document"]
-        
+
+        if not doc:
+            continue
+
+        mesg_obj = {}
+
         mesg_obj["message_id"] = message["message_id"]
         mesg_obj["file_name"] = doc["file_name"]
         mesg_obj["date"] = message["date"]
         mesg_obj["file_size"] = doc["file_size"]
+
         if doc["thumbs"]:
             mesg_obj["thumb_id"] = doc["thumbs"][0]["file_id"]
 
         response.append(mesg_obj)
-        response.reverse()
-  
+    response.reverse()
     return web.json_response(response, headers={ "Access-Control-Allow-Origin": "*"})
 
 
