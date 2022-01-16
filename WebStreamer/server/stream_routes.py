@@ -39,11 +39,14 @@ async def files(request):
     for message in messages:
         if not message:
             continue
-
+        
         doc = message["document"]
+        video = message["video"]
 
         if not doc:
-            continue
+            if not video:
+                continue
+            doc = video
 
         mesg_obj = {}
 
