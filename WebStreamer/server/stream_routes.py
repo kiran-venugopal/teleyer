@@ -1,5 +1,6 @@
 # Taken from megadlbot_oss <https://github.com/eyaadh/megadlbot_oss/blob/master/mega/webserver/routes.py>
 # Thanks to Eyaadh <https://github.com/eyaadh>
+from asyncio import constants
 import re
 import time
 import math
@@ -31,6 +32,8 @@ async def files(request):
     mids_string = doc["mids"]
     message_ids = []
     for id in mids_string.split(","):
+        if not id:
+            continue
         message_ids.append(int(id))
     
     messages = await StreamBot.get_messages(Var.BIN_CHANNEL, message_ids)
@@ -39,9 +42,8 @@ async def files(request):
     for message in messages:
         if not message:
             continue
-        
-        doc = message["document"]
-        video = message["video"]
+        doc = message.document
+        video = message.video
 
         if not doc:
             if not video:
@@ -50,13 +52,13 @@ async def files(request):
 
         mesg_obj = {}
 
-        mesg_obj["message_id"] = message["message_id"]
-        mesg_obj["file_name"] = doc["file_name"]
-        mesg_obj["date"] = message["date"]
-        mesg_obj["file_size"] = doc["file_size"]
+        mesg_obj["message_id"] = message.id
+        mesg_obj["file_name"] = doc.file_name
+        mesg_obj["date"] = message.date.isoformat()
+        mesg_obj["file_size"] = doc.file_size
 
-        if doc["thumbs"]:
-            mesg_obj["thumb_id"] = doc["thumbs"][0]["file_id"]
+        if doc.thumbs:
+            mesg_obj["thumb_id"] = doc.thumbs[0].file_id
 
         response.append(mesg_obj)
     response.reverse()
