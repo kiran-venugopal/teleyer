@@ -58,53 +58,114 @@ class TGCustomYield:
         setattr(file_id_obj, "file_size", getattr(media, "file_size", 0))
         setattr(file_id_obj, "mime_type", getattr(media, "mime_type", ""))
         setattr(file_id_obj, "file_name", getattr(media, "file_name", ""))
+        setattr(file_id_obj, "file_id", file_id_str)
+        
 
         return file_id_obj
 
-    async def generate_media_session(self, client: Client, msg: Message):
-        data = await self.generate_file_properties(msg)
+    # async def generate_media_session(self, client: Client, msg: Message):
+    #     data = await self.generate_file_properties(msg)
 
+    #     media_session = client.media_sessions.get(data.dc_id, None)
+
+    #     if media_session is None:
+    #         if data.dc_id != await client.storage.dc_id():
+    #             media_session = Session(
+    #                 client, data.dc_id, await Auth(client, data.dc_id, await client.storage.test_mode()).create(),
+    #                 await client.storage.test_mode(), is_media=True
+    #             )
+    #             await media_session.start()
+
+    #             for _ in range(3):
+    #                 exported_auth = await client.send(
+    #                     raw.functions.auth.ExportAuthorization(
+    #                         dc_id=data.dc_id
+    #                     )
+    #                 )
+
+    #                 try:
+    #                     await media_session.send(
+    #                         raw.functions.auth.ImportAuthorization(
+    #                             id=exported_auth.id,
+    #                             bytes=exported_auth.bytes
+    #                         )
+    #                     )
+    #                 except AuthBytesInvalid:
+    #                     continue
+    #                 else:
+    #                     break
+    #             else:
+    #                 await media_session.stop()
+    #                 raise AuthBytesInvalid
+    #         else:
+    #             media_session = Session(
+    #                 client, data.dc_id, await client.storage.auth_key(),
+    #                 await client.storage.test_mode(), is_media=True
+    #             )
+    #             await media_session.start()
+
+    #         client.media_sessions[data.dc_id] = media_session
+
+    #     return media_session
+
+
+    async def generate_media_session(self, client: Client, msg: Message) -> Session:
+        """
+        Generates the media session for the DC that contains the media file.
+        This is required for getting the bytes from Telegram servers.
+        """
+        data = await self.generate_file_properties(msg)
+        # file_id = data.file_id
         media_session = client.media_sessions.get(data.dc_id, None)
 
         if media_session is None:
             if data.dc_id != await client.storage.dc_id():
                 media_session = Session(
-                    client, data.dc_id, await Auth(client, data.dc_id, await client.storage.test_mode()).create(),
-                    await client.storage.test_mode(), is_media=True
+                    client,
+                    data.dc_id,
+                    await Auth(
+                        client, data.dc_id, await client.storage.test_mode()
+                    ).create(),
+                    await client.storage.test_mode(),
+                    is_media=True,
                 )
                 await media_session.start()
 
-                for _ in range(3):
-                    exported_auth = await client.send(
-                        raw.functions.auth.ExportAuthorization(
-                            dc_id=data.dc_id
-                        )
+                for _ in range(6):
+                    exported_auth = await client.invoke(
+                        raw.functions.auth.ExportAuthorization(dc_id=data.dc_id)
                     )
 
                     try:
-                        await media_session.send(
+                        await media_session.invoke(
                             raw.functions.auth.ImportAuthorization(
-                                id=exported_auth.id,
-                                bytes=exported_auth.bytes
+                                id=exported_auth.id, bytes=exported_auth.bytes
                             )
                         )
-                    except AuthBytesInvalid:
-                        continue
-                    else:
                         break
+                    except AuthBytesInvalid:
+                        # logger.debug(
+                        #     f"Invalid authorization bytes for DC {data.dc_id}"
+                        # )
+                        continue
                 else:
                     await media_session.stop()
                     raise AuthBytesInvalid
             else:
                 media_session = Session(
-                    client, data.dc_id, await client.storage.auth_key(),
-                    await client.storage.test_mode(), is_media=True
+                    client,
+                    data.dc_id,
+                    await client.storage.auth_key(),
+                    await client.storage.test_mode(),
+                    is_media=True,
                 )
                 await media_session.start()
-
+            # logger.debug(f"Created media session for DC {data.dc_id}")
             client.media_sessions[data.dc_id] = media_session
-
+        #else:
+          #  logger.debug(f"Using cached media session for DC {data.dc_id}")
         return media_session
+
 
     @staticmethod
     async def get_location(file_id: FileId):
