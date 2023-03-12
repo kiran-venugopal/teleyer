@@ -39,28 +39,32 @@ async def files(request):
     messages = await StreamBot.get_messages(Var.BIN_CHANNEL, message_ids)
     # print(messages)
     response = []
-    for message in messages:
-        if not message:
-            continue
-        doc = message.document
-        video = message.video
-
-        if not doc:
-            if not video:
+    chunk_size = 200
+    for i in range(0, len(message_ids), chunk_size):
+        chunk = message_ids[i:i+chunk_size]
+        messages = await StreamBot.get_messages(Var.BIN_CHANNEL, chunk)
+        for message in messages:
+            if not message:
                 continue
-            doc = video
+            doc = message.document
+            video = message.video
 
-        mesg_obj = {}
+            if not doc:
+                if not video:
+                    continue
+                doc = video
 
-        mesg_obj["message_id"] = message.id
-        mesg_obj["file_name"] = doc.file_name
-        mesg_obj["date"] = message.date.isoformat()
-        mesg_obj["file_size"] = doc.file_size
+            mesg_obj = {}
 
-        if doc.thumbs:
-            mesg_obj["thumb_id"] = doc.thumbs[0].file_id
+            mesg_obj["message_id"] = message.id
+            mesg_obj["file_name"] = doc.file_name
+            mesg_obj["date"] = message.date.isoformat()
+            mesg_obj["file_size"] = doc.file_size
 
-        response.append(mesg_obj)
+            if doc.thumbs:
+                mesg_obj["thumb_id"] = doc.thumbs[0].file_id
+
+            response.append(mesg_obj)
     response.reverse()
     return web.json_response(response, headers={ "Access-Control-Allow-Origin": "*"})
 
