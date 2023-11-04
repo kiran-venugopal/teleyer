@@ -36,10 +36,8 @@ async def media_receive_handler(_, m: Message):
             db = get_database()
             collection = db["messageids"]
             items = collection.find()
-            [doc] = items
-            mids_string = doc["mids"]
-            mids_string = mids_string + "," +  str(log_msg.id)
-            collection.update_one({'_id':doc['_id']}, {"$set":{"mids": mids_string}})
+            file_doc = {"fileId": log_msg.id, "fileName":file.file_name }
+            collection.insert_one(file_doc)
         except Exception as e: print(e)
 
         url=Var.URL

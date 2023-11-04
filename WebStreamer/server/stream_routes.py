@@ -28,13 +28,11 @@ async def files(request):
     db = get_database()
     collection = db["messageids"]
     items = collection.find()
-    [doc] = items
-    mids_string = doc["mids"]
     message_ids = []
-    for id in mids_string.split(","):
+    for fileDoc in items:
         if not id:
             continue
-        message_ids.append(int(id))
+        message_ids.append(int(fileDoc["fileId"]))
     
     messages = await StreamBot.get_messages(Var.BIN_CHANNEL, message_ids)
     # print(messages)
