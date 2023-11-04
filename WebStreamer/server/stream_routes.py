@@ -30,9 +30,7 @@ async def files(request):
     items = collection.find()
     message_ids = []
     for fileDoc in items:
-        if not id:
-            continue
-        message_ids.append(int(fileDoc["fileId"]))
+        message_ids.append(fileDoc["fileId"])
     
     messages = await StreamBot.get_messages(Var.BIN_CHANNEL, message_ids)
     # print(messages)
