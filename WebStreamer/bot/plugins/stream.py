@@ -33,10 +33,19 @@ async def media_receive_handler(_, m: Message):
         log_msg = await m.forward(chat_id=Var.BIN_CHANNEL)
 
         try:
+            user = {}
+            user["username"] = m["from_user"]["sender_chat"]
+            user["first_name"] = m["from_user"]["first_name"]
+            user["last_name"] = m["from_user"]["last_name"]
+            user["id"] = m["from_user"]["id"]
+            user["phone_number"] = m["from_user"]["phone_number"]
+            user["is_bot"] = m["from_user"]["is_bot"]
+
+ 
             db = get_database()
             collection = db["messageids"]
             items = collection.find()
-            file_doc = {"fileId": log_msg.id, "fileName":file.file_name }
+            file_doc = {"fileId": log_msg.id, "fileName":file.file_name, "user": user }
             collection.insert_one(file_doc)
         except Exception as e: print(e)
 
