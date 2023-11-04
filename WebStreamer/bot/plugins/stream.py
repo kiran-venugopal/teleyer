@@ -34,12 +34,15 @@ async def media_receive_handler(_, m: Message):
 
         try:
             user = {}
-            user["username"] = m["from_user"]["sender_chat"]
-            user["first_name"] = m["from_user"]["first_name"]
-            user["last_name"] = m["from_user"]["last_name"]
-            user["id"] = m["from_user"]["id"]
-            user["phone_number"] = m["from_user"]["phone_number"]
-            user["is_bot"] = m["from_user"]["is_bot"]
+            from_user = m["from_user"]
+            if from_user:
+                user["username"] = from_user["username"]
+                user["first_name"] = from_user["first_name"]
+                user["last_name"] = from_user["last_name"]
+                user["id"] = from_user["id"]
+                user["phone_number"] = from_user["phone_number"]
+                user["is_bot"] = from_user["is_bot"]
+            
 
  
             db = get_database()
