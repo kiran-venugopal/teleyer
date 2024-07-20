@@ -23,7 +23,11 @@ def detect_type(m: Message):
 
 @StreamBot.on_message(filters.document | filters.video | filters.audio, group=4)
 async def media_receive_handler(_, m: Message):
-    print(m)
+    print("--- new message log start ---")
+    print(m.from_user)
+    print(m.caption)
+    print("--- new message log end ---")
+   
     try:
        
         file = detect_type(m)
